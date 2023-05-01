@@ -31,7 +31,9 @@ use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::io;
 use std::path::PathBuf;
-
+#[cfg(all(target_os = "linux", any(target_arch = "x86_64", target_arch = "aarch64")))]
+use aws_lc_rs::digest;
+#[cfg(not(all(target_os = "linux", any(target_arch = "x86_64", target_arch = "aarch64"))))]
 use ring::digest;
 use zeroize::Zeroizing;
 

@@ -11,7 +11,11 @@ use aws_smithy_http::operation::Request;
 use bytes::Buf;
 use bytes_utils::SegmentedBuf;
 use http::header::HeaderName;
-use ring::digest::{Context, Digest, SHA256};
+#[cfg(all(target_os = "linux", any(target_arch = "x86_64", target_arch = "aarch64")))]
+use aws_lc_rs::digest::{Context, Digest, SHA256};
+#[cfg(not(all(target_os = "linux", any(target_arch = "x86_64", target_arch = "aarch64"))))]
+use ring::digest::{ Context, Digest, SHA256};
+
 use tokio_stream::StreamExt;
 
 const TREE_HASH_HEADER: &str = "x-amz-sha256-tree-hash";
@@ -130,6 +134,10 @@ mod test {
     use aws_smithy_http::body::SdkBody;
     use aws_smithy_http::byte_stream::ByteStream;
     use aws_smithy_http::operation::Request;
+    #[cfg(all(target_os = "linux", any(target_arch = "x86_64", target_arch = "aarch64")))]
+    use aws_lc_rs::digest;
+    #[cfg(not(all(target_os = "linux", any(target_arch = "x86_64", target_arch = "aarch64"))))]
+    use ring::digest;
 
     #[tokio::test]
     async fn compute_digests() {
@@ -167,7 +175,7 @@ mod test {
         macro_rules! hash {
             ($($inp:expr),*) => {
                 {
-                    let mut ctx = ring::digest::Context::new(&ring::digest::SHA256);
+                    let mut ctx = digest::Context::new(&digest::SHA256);
                     $(
                         ctx.update($inp.as_ref());
                     )*

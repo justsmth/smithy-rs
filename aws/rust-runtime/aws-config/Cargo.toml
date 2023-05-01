@@ -13,7 +13,8 @@ client-hyper = ["aws-smithy-client/client-hyper"]
 rustls = ["aws-smithy-client/rustls"]
 native-tls = ["aws-smithy-client/native-tls"]
 rt-tokio = ["aws-smithy-async/rt-tokio", "tokio/rt"]
-credentials-sso = ["dep:aws-sdk-sso", "dep:ring", "dep:hex", "dep:zeroize"]
+
+credentials-sso = ["dep:aws-sdk-sso", "dep:aws-lc-rs", "dep:ring", "dep:hex", "dep:zeroize"]
 
 default = ["client-hyper", "rustls", "rt-tokio", "credentials-sso"]
 
@@ -42,9 +43,14 @@ tower = { version = "0.4.8" }
 
 # implementation detail of SSO credential caching
 aws-sdk-sso = { path = "../../sdk/build/aws-sdk/sdk/sso", default-features = false, optional = true }
-ring = { version = "0.16", optional = true }
 hex = { version = "0.4.3", optional = true }
 zeroize = { version = "1", optional = true }
+
+[target.'cfg(all(target_os = "linux", any(target_arch = "x86_64", target_arch = "aarch64")))'.dependencies]
+aws-lc-rs = { version = "1.0", default-features = false, features = ["aws-lc-sys"], optional = true }
+
+[target.'cfg(not(all(target_os = "linux", any(target_arch = "x86_64", target_arch = "aarch64"))))'.dependencies]
+ring = { version = "0.16", optional = true }
 
 [dev-dependencies]
 futures-util = { version = "0.3.16", default-features = false }

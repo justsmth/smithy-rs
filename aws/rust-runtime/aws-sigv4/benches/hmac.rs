@@ -6,7 +6,9 @@
 use criterion::{criterion_group, criterion_main, Criterion};
 use hmac::digest::FixedOutput;
 use hmac::{Hmac, Mac};
-#[cfg(not(any(target_arch = "powerpc", target_arch = "powerpc64")))]
+#[cfg(all(target_os = "linux", any(target_arch = "x86_64", target_arch = "aarch64")))]
+use aws_lc_rs::hmac::{sign, Context, Key, HMAC_SHA256};
+#[cfg(not(any(target_arch = "powerpc", target_arch = "powerpc64", all(target_os = "linux", any(target_arch = "x86_64", target_arch = "aarch64")))))]
 use ring::hmac::{sign, Context, Key, HMAC_SHA256};
 use sha2::Sha256;
 
